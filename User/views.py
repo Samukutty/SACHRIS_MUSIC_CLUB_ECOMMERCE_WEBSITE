@@ -189,16 +189,31 @@ def register_attempt(request):
             profile_obj = Profile.objects.create(user=user_obj, auth_token=auth_token)
             profile_obj.save()
             try:
-                send_mail_after_registration(request, email, username, auth_token)
+                from threading import Thread
+                Thread(
+                    target=send_mail_after_registration,
+                    args=(request, email, username, auth_token)
+                ).start()
+                print(f'Mail Not Send: {e}')
+            user_obj.save()
+
+            auth_token = str(uuid.uuid4())
+            profile_obj = Profile.objects.create(user=user_obj, auth_token=auth_token)
+
+            try:
+                from threading import Thread
+                Thread(
+                    target=send_mail_after_registration,
+                    args=(request, email, username, auth_token)
+                ).start()
+            except Exception as e:
+                print(e)
+
+            return JsonResponse({'status': True, 'create': 'usercreate', 'u_name': username})
+
+
             except Exception as e:
                 print(f'Mail Not Send: {e}')
-            a = {'status': True, 'create': 'usercreate', 'u_name': username}
-            return JsonResponse(a)
-
-        except Exception as e:
-            print(e)
-            a = {'status': False}
-            return JsonResponse(a)
 
     else:
         if 'userid' in request.session:
