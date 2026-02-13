@@ -169,37 +169,24 @@ def register_attempt(request):
 
         try:
             if A_User.objects.filter(username=username).first():
-                a = {'status': True, 'exists': 'existuser'}
-                return JsonResponse(a)
+                return JsonResponse({'status': True, 'exists': 'existuser'})
 
-            existing_user = A_User.objects.filter(email=email).first()
-            if existing_user:
-                # Email already registered - suggest login instead
-                a = {
+            if A_User.objects.filter(email=email).first():
+                return JsonResponse({
                     'status': True,
                     'exists': 'existemail',
                     'login_url': '/user/accounts/login/',
-                }
-                return JsonResponse(a)
+                })
 
+            # Create user
             user_obj = A_User(username=username, email=email)
             user_obj.set_password(password)
             user_obj.save()
-            auth_token = str(uuid.uuid4())
-            profile_obj = Profile.objects.create(user=user_obj, auth_token=auth_token)
-            profile_obj.save()
-            try:
-                from threading import Thread
-                Thread(
-                    target=send_mail_after_registration,
-                    args=(request, email, username, auth_token)
-                ).start()
-                print(f'Mail Not Send: {e}')
-            user_obj.save()
 
             auth_token = str(uuid.uuid4())
-            profile_obj = Profile.objects.create(user=user_obj, auth_token=auth_token)
+            Profile.objects.create(user=user_obj, auth_token=auth_token)
 
+            # Send email in background thread
             try:
                 from threading import Thread
                 Thread(
@@ -207,20 +194,19 @@ def register_attempt(request):
                     args=(request, email, username, auth_token)
                 ).start()
             except Exception as e:
-                print(e)
+                print("Mail error:", e)
 
-            return JsonResponse({'status': True, 'create': 'usercreate', 'u_name': username})
+            return JsonResponse({
+                'status': True,
+                'create': 'usercreate',
+                'u_name': username
+            })
 
+        except Exception as e:
+            print("Register error:", e)
+            return JsonResponse({'status': False})
 
-            except Exception as e:
-                print(f'Mail Not Send: {e}')
-
-    else:
-        if 'userid' in request.session:
-            return redirect('/user/dashboard/')
-        else:
-            count = 0
-            return render(request, 'user/register.html', {'cart_val': count, 'cartc': '2'})
+    return render(request, 'user/register.html')
 
 
 # Account Activation Mail Send - builds a verification link that works from any device
