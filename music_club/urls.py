@@ -20,6 +20,8 @@ from django.contrib import admin
 from User.views import home
 from django.views.static import serve
 from django.urls import re_path
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
 
@@ -27,6 +29,7 @@ urlpatterns = [
     path('admin_side/', admin.site.urls),
     path('user/', include('User.urls')),
     path('admin/', include('Admin.urls')),
+    path('admin/', admin.site.urls),
     re_path(r'^uploads/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
