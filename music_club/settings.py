@@ -24,10 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '7k@nilk%2=97j8ecf)gxloyd*anhhprwnmuhq69x5*1a=90uaf'
 
 # SECURITY WARNING: don't run with debug turned on in production! True False
-DEBUG = True
+DEBUG = False
 
 # Allow all hosts in development. For production, replace '*' with your domain.
 ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['.onrender.com']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://*.ngrok-free.dev'
@@ -94,7 +95,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'music_club.wsgi.application'
+WSGI_APPLICATION = "gunicorn music_club.wsgi:application"
 
 LOGIN_REDIRECT_URL = '/admin/'
 LOGOUT_REDIRECT_URL = '/admin/accounts/login/'
