@@ -172,11 +172,12 @@ EMAIL_HOST = "smtp.sendgrid.net"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-##EMAIL_HOST_USER = 'samchenu13@gmail.com'        # <-- Your Gmail
-##EMAIL_HOST_PASSWORD = 'owmuryzoivsewdpz'  # <-- 16-digit App Password (no spaces)
-
 EMAIL_HOST_USER = "apikey"
 EMAIL_HOST_PASSWORD = os.environ.get("SENDGRID_API_KEY")
+
 DEFAULT_FROM_EMAIL = "samchenu13@gmail.com"
+
+##EMAIL_HOST_USER = 'samchenu13@gmail.com'        # <-- Your Gmail
+##EMAIL_HOST_PASSWORD = 'owmuryzoivsewdpz'  # <-- 16-digit App Password (no spaces)
 
 UPI_ID = upi_id
