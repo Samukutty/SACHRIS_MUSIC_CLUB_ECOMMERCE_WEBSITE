@@ -18,6 +18,9 @@ from django.utils.http import urlsafe_base64_encode
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+from django.conf import settings
 
 from Admin.category.models import categoryModel
 from Admin.slider.models import GalleryModel
@@ -219,30 +222,26 @@ def send_mail_after_registration(request, email, username, token):
     regardless of how the user accessed the site. Otherwise, fall back to the
     request host.
     """
-    base_url = getattr(settings, 'PUBLIC_SITE_URL', '').strip()
-    if base_url:
-        # Ensure there is no trailing slash so we can safely append the path
-        if base_url.endswith('/'):
-            base_url = base_url[:-1]
-        verification_link = f'{base_url}/user/verify/{token}'
-    else:
-        # Fall back to the current request host (e.g. http://127.0.0.1:8000)
-        verification_link = request.build_absolute_uri(f'/user/verify/{token}')
+    base_url = request.build_absolute_uri('/')
+    verification_link = f"{base_url}user/verify/{token}"
 
-    email_template_name = 'user/verifymail.html'
-    parameters = {
-        'verification_link': verification_link,
-        'username': username,
-    }
-    html_template = render_to_string(email_template_name, parameters)
-    subject = 'Verify your Sachris Club account'
+    message = Mail(
+        from_email='samchenu13@gmail.com',  # must match verified sender
+        to_emails=email,
+        subject='Verify your Sachris Club account',
+        html_content=f"""
+        <h3>Hello {username},</h3>
+        <p>Please verify your account:</p>
+        <a href="{verification_link}">Click Here to Verify</a>
+        """
+    )
 
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = [email]
-
-    message = EmailMessage(subject, html_template, email_from, recipient_list)
-    message.content_subtype = 'html'
-    message.send()
+    try:
+        sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+        response = sg.send(message)
+        print("SendGrid Status Code:", response.status_code)
+    except Exception as e:
+        print("SendGrid API Error:", e)
 
 
 # After Mail Send Page
