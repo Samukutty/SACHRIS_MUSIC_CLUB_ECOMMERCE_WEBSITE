@@ -177,7 +177,4 @@ EMAIL_HOST_PASSWORD = os.environ.get("SENDGRID_API_KEY")
 
 DEFAULT_FROM_EMAIL = "samchenu13@gmail.com"
 
-##EMAIL_HOST_USER = 'samchenu13@gmail.com'        # <-- Your Gmail
-##EMAIL_HOST_PASSWORD = 'owmuryzoivsewdpz'  # <-- 16-digit App Password (no spaces)
-
 UPI_ID = upi_id
